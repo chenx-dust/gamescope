@@ -424,12 +424,17 @@ void initialize_custom_modes(const char *dir) {
 }
 
 int load_custom_modes(const char *pnp, const char *model) {
+	xwm_log.errorf("Loading custom modes for %s %s", pnp, model);
 	std::string fn(custom_directory);
 	fn.append("/");
 	fn.append(pnp);
 	fn.append("/");
-	fn.append(model);
+	// fn.append(model);
+	if (model != nullptr) {
+		fn.append(model);
+	}
 	fn.append(".txt");
+	xwm_log.errorf("Loading file: %s", fn.c_str());
 	std::ifstream file(fn);
 
 	auto key = std::string(pnp) + std::string(model);
@@ -451,6 +456,10 @@ int load_custom_modes(const char *pnp, const char *model) {
 			continue;
 		}
 
+		if (line.empty()) {
+			continue;
+		}
+
 		drmModeModeInfo drm;
 		auto target_fps = convert_modeline(line, &drm);
 		if (target_fps) {
@@ -467,6 +476,9 @@ int load_custom_modes(const char *pnp, const char *model) {
 }
 
 std::span<uint32_t> get_custom_framerates(const char *pnp, const char *model) {
+	if (model == nullptr) {
+        model = "";
+    }
 	auto key = std::string(pnp) + std::string(model);
 	if (!custom_framerates.contains(key))
 		load_custom_modes(pnp, model);
@@ -476,6 +488,10 @@ std::span<uint32_t> get_custom_framerates(const char *pnp, const char *model) {
 
 void generate_custom_mode(drmModeModeInfo *mode, const drmModeModeInfo *base, int vrefresh, const char *pnp, const char *model) {
 	*mode = *base;
+
+	if (model == nullptr) {
+        model = "";
+    }
 
 	auto key = std::string(pnp) + std::string(model);
 	if (!custom_modes.contains(key) && !load_custom_modes(pnp, model))
