@@ -2019,8 +2019,19 @@ static void apply_touchscreen_orientation(double *x, double *y )
 	double tx = 0;
 	double ty = 0;
 
-	// Use internal screen always for orientation purposes.
-	switch ( GetBackend()->GetConnector( gamescope::GAMESCOPE_SCREEN_TYPE_INTERNAL )->GetCurrentOrientation() )
+	auto orientation = GAMESCOPE_PANEL_ORIENTATION_AUTO;
+	auto screenType = gamescope::GAMESCOPE_SCREEN_TYPE_INTERNAL;
+	if ( g_bExternalForced == true )
+	{
+		screenType = gamescope::GAMESCOPE_SCREEN_TYPE_EXTERNAL;
+	}
+
+	if ( GetBackend() && GetBackend()->GetCurrentConnector(  ) )
+	{
+		// orientation = GetBackend()->GetConnector( screenType )->GetCurrentOrientation();
+		orientation = GetBackend()->GetCurrentConnector()->GetCurrentOrientation();
+	}
+	switch ( orientation )
 	{
 		default:
 		case GAMESCOPE_PANEL_ORIENTATION_AUTO:
@@ -2042,6 +2053,8 @@ static void apply_touchscreen_orientation(double *x, double *y )
 			break;
 	}
 
+	wl_log.infof("Touchscreen orientation: %d, x: %f, y: %f, tx: %f, ty: %f", orientation, *x, *y, tx, ty);
+
 	*x = tx;
 	*y = ty;
 }
@@ -2053,9 +2066,13 @@ int get_effective_touch_mode()
 	if ( !GetBackend() || !GetBackend()->GetCurrentConnector() )
 		return g_nTouchClickMode;
 
-	gamescope::GamescopeScreenType screenType = GetBackend()->GetCurrentConnector()->GetScreenType();
-	if ( screenType == gamescope::GAMESCOPE_SCREEN_TYPE_EXTERNAL && g_nTouchClickMode == WLSERVER_TOUCH_CLICK_PASSTHROUGH )
-		return WLSERVER_TOUCH_CLICK_TRACKPAD;
+	// auto b_DisplayTypeInternal = GetBackend()->GetCurrentConnector()->DisplayTypeInternal();
+
+	// gamescope::GamescopeScreenType screenType = GetBackend()->GetCurrentConnector()->GetScreenType();
+	// if ( screenType == gamescope::GAMESCOPE_SCREEN_TYPE_EXTERNAL && 
+	// 		g_nTouchClickMode == WLSERVER_TOUCH_CLICK_PASSTHROUGH && 
+	// 		!b_DisplayTypeInternal )
+	// 	return WLSERVER_TOUCH_CLICK_TRACKPAD;
 
 	return g_nTouchClickMode;
 }
