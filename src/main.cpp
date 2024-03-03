@@ -20,6 +20,7 @@
 
 #include "main.hpp"
 #include "steamcompmgr.hpp"
+#include "modegen.hpp"
 #include "rendervulkan.hpp"
 #include "wlserver.hpp"
 #include "gpuvis_trace_utils.h"
@@ -76,6 +77,7 @@ const struct option *gamescope_options = (struct option[]){
 	{ "prefer-output", required_argument, nullptr, 'O' },
 	{ "default-touch-mode", required_argument, nullptr, 0 },
 	{ "generate-drm-mode", required_argument, nullptr, 0 },
+	{ "generate-drm-mode-custom-dir", required_argument, nullptr, 0 },
 	{ "immediate-flips", no_argument, nullptr, 0 },
 	{ "adaptive-sync", no_argument, nullptr, 0 },
 	{ "framerate-limit", required_argument, nullptr, 0 },
@@ -192,7 +194,8 @@ const char usage[] =
 	"Embedded mode options:\n"
 	"  -O, --prefer-output            list of connectors in order of preference\n"
 	"  --default-touch-mode           0: hover, 1: left, 2: right, 3: middle, 4: passthrough\n"
-	"  --generate-drm-mode            DRM mode generation algorithm (cvt, fixed)\n"
+	"  --generate-drm-mode            DRM mode generation algorithm (cvt, fixed, custom)\n"
+	"  --generate-drm-mode-custom-dir For custom generation, provide a directory with modeline configurations.\n"
 	"  --immediate-flips              Enable immediate flips, may result in tearing\n"
 	"  --adaptive-sync                Enable adaptive sync if available (variable rate refresh)\n"
 	"\n"
@@ -324,6 +327,10 @@ static gamescope::GamescopeModeGeneration parse_gamescope_mode_generation( const
 	else if ( str == "fixed"sv )
 	{
 		return gamescope::GAMESCOPE_MODE_GENERATE_FIXED;
+	}
+	else if ( str == "custom"sv )
+	{
+		return gamescope::GAMESCOPE_MODE_GENERATE_CUSTOM;
 	}
 	else
 	{
@@ -636,6 +643,8 @@ int main(int argc, char **argv)
 					g_nTouchClickMode = g_nDefaultTouchClickMode;
 				} else if (strcmp(opt_name, "generate-drm-mode") == 0) {
 					g_eGamescopeModeGeneration = parse_gamescope_mode_generation( optarg );
+				} else if (strcmp(opt_name, "generate-drm-mode-custom-dir") == 0) {
+					initialize_custom_modes( optarg );
 				} else if (strcmp(opt_name, "force-orientation") == 0) {
 					g_DesiredInternalOrientation = force_orientation( optarg );
 				} else if (strcmp(opt_name, "sharpness") == 0 ||
