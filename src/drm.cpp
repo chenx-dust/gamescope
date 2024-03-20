@@ -532,6 +532,21 @@ static uint32_t s_kLegionGoDisplayRates[] =
 	144,
 };
 
+static uint32_t s_kGPDWinMiniRates[] =
+{
+	60,
+	111,
+	112,
+	113,
+	114,
+	115,
+	116,
+	117,
+	118,
+	119,
+	120,
+};
+
 static void update_connector_display_info_wl(struct drm_t *drm)
 {
 	wlserver_lock();
@@ -2201,6 +2216,11 @@ namespace gamescope
 		else if ( m_Mutable.szMakePNP == "LEN"sv && m_Mutable.szModel == "Go Display"sv )
 		{
 			m_Mutable.ValidDynamicRefreshRates = std::span( s_kLegionGoDisplayRates );
+		}
+		else if ( m_Mutable.szMakePNP == "GPD"sv && m_Mutable.szModel == "MINI"sv )
+		{
+			drm_log.infof( "GPD Win Mini detected. Using known display" );
+			m_Mutable.ValidDynamicRefreshRates = std::span( s_kGPDWinMiniRates );
 		}
 
 		// Colorimetry
