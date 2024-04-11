@@ -1,9 +1,9 @@
 name: CI
 on:
   push:
-    branches: [ master ]
+    branches: [ sk-* ]
   pull_request:
-    branches: [ master ]
+    branches: [ sk-* ]
   workflow_dispatch:
 jobs:
   build:
