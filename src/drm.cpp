@@ -2082,6 +2082,14 @@ namespace gamescope
 
 		m_ChosenPanelType = g_eGamescopePanelType;
 
+		// Refresh rates from environment variables
+		const char *envRefreshRates = getenv("GAMESCOPE_REFRESH_RATES");
+		std::vector<uint32_t> envRates;
+		if ( envRefreshRates && *envRefreshRates )
+		{
+			envRates = parse_custom_refresh_rates( envRefreshRates );
+		}
+
 		const bool bSteamDeckDisplay =
 			( m_Mutable.szMakePNP == "WLC"sv && m_Mutable.szModel == "ANX7530 U"sv ) ||
 			( m_Mutable.szMakePNP == "ANX"sv && m_Mutable.szModel == "ANX7530 U"sv ) ||
@@ -2100,6 +2108,10 @@ namespace gamescope
 		else if ( !g_customRefreshRates.empty() )
 		{
 			m_Mutable.ValidDynamicRefreshRates = std::span( g_customRefreshRates );
+		}
+		else if ( ! envRates.empty() )
+		{
+			m_Mutable.ValidDynamicRefreshRates = std::span( envRates );
 		}
 		else if ( bSteamDeckDisplay )
 		{
