@@ -2018,15 +2018,8 @@ static void apply_touchscreen_orientation(double *x, double *y )
 	double ty = 0;
 
 	auto orientation = GAMESCOPE_PANEL_ORIENTATION_AUTO;
-	auto screenType = gamescope::GAMESCOPE_SCREEN_TYPE_INTERNAL;
-	if ( g_bExternalForced == true )
-	{
-		screenType = gamescope::GAMESCOPE_SCREEN_TYPE_EXTERNAL;
-	}
-
 	if ( GetBackend() && GetBackend()->GetCurrentConnector(  ) )
 	{
-		// orientation = GetBackend()->GetConnector( screenType )->GetCurrentOrientation();
 		orientation = GetBackend()->GetCurrentConnector()->GetCurrentOrientation();
 	}
 	switch ( orientation )
@@ -2050,8 +2043,6 @@ static void apply_touchscreen_orientation(double *x, double *y )
 			ty = 1.0 - *x;
 			break;
 	}
-
-	wl_log.infof("Touchscreen orientation: %d, x: %f, y: %f, tx: %f, ty: %f", orientation, *x, *y, tx, ty);
 
 	*x = tx;
 	*y = ty;
