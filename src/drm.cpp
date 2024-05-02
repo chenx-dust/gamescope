@@ -2143,7 +2143,7 @@ namespace gamescope
 				m_Mutable.ValidDynamicRefreshRates = fr;
 			}
 		}
-		else if ( !g_customRefreshRates.empty() )
+		else if ( !g_customRefreshRates.empty() && DisplayTypeInternal() )
 		{
 			m_Mutable.ValidDynamicRefreshRates = std::span( g_customRefreshRates );
 		}
