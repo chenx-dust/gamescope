@@ -2184,6 +2184,22 @@ static void apply_touchscreen_orientation(double *x, double *y )
 
 bool g_bTrackpadTouchExternalDisplay = false;
 
+int get_effective_touch_mode()
+{
+	if ( !GetBackend() || !GetBackend()->GetCurrentConnector() )
+		return g_nTouchClickMode;
+
+	// auto b_DisplayTypeInternal = GetBackend()->GetCurrentConnector()->DisplayTypeInternal();
+
+	// gamescope::GamescopeScreenType screenType = GetBackend()->GetCurrentConnector()->GetScreenType();
+	// if ( screenType == gamescope::GAMESCOPE_SCREEN_TYPE_EXTERNAL && 
+	// 		g_nTouchClickMode == WLSERVER_TOUCH_CLICK_PASSTHROUGH && 
+	// 		!b_DisplayTypeInternal )
+	// 	return WLSERVER_TOUCH_CLICK_TRACKPAD;
+
+	return g_nTouchClickMode;
+}
+
 void wlserver_touchmotion( double x, double y, int touch_id, uint32_t time )
 {
 	assert( wlserver_is_lock_held() );
@@ -2215,7 +2231,37 @@ void wlserver_touchmotion( double x, double y, int touch_id, uint32_t time )
 
 		if ( eMode == gamescope::TouchClickModes::Passthrough )
 		{
-			wlr_seat_touch_notify_motion( wlserver.wlr.seat, time, touch_id, tx, ty );
+			wlr_seat_touch_notify_motion( wlserver.wlr.seat, time, touch_id, wlserver.mouse_surface_cursorx, wlserver.mouse_surface_cursory );
+
+			if(!getenv("GAMESCOPE_DISABLE_TOUCH_GESTURES")) {
+				bool start_gesture = false;
+	
+				// Round the x-coordinate to the nearest whole number
+				uint32_t roundedCursorX = static_cast<int>(std::round(wlserver.mouse_surface_cursorx));
+				// Grab 2% of the display to be used for the edge range
+				double edge_range = g_nOutputWidth * 0.02;
+	
+				// if the touch cursor x position is less or equal to the range then start the gesture for left to right
+				if (roundedCursorX <= edge_range) {
+					start_gesture = true;
+				}
+				// if the touch cursor x position is the output width minus the edge range value then we are doing right to left
+				if (roundedCursorX >= g_nOutputWidth - edge_range) {
+					start_gesture = true;
+				}
+				// when the gesture is started and we are moving to the end of the edge range open home
+				if (start_gesture && roundedCursorX >= 1 && roundedCursorX <= edge_range) {
+					wl_log.infof("Detected Home gesture");
+					wlserver_open_steam_menu(0);
+					start_gesture = false;
+				}
+				// when the gesture is started and we are moving from the output width minus the edge range to the output width open QAM
+				if (start_gesture && roundedCursorX >= g_nOutputWidth - edge_range && roundedCursorX <= g_nOutputWidth ) {
+					wl_log.infof("Detected QAM gesture");
+					wlserver_open_steam_menu(1);
+					start_gesture = false;
+				}
+			}
 		}
 		else if ( eMode == gamescope::TouchClickModes::Disabled )
 		{

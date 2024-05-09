@@ -195,6 +195,7 @@ const char usage[] =
 	"                                 Default: 1000 nits, Max: 10000 nits\n"
 	"  --framerate-limit              Set a simple framerate limit. Used as a divisor of the refresh rate, rounds down eg 60 / 59 -> 60fps, 60 / 25 -> 30fps. Default: 0, disabled.\n"
 	"  --mangoapp                     Launch with the mangoapp (mangohud) performance overlay enabled. You should use this instead of using mangohud on the game or gamescope.\n"
+	"  --custom-refresh-rates         Set custom refresh rates for the output. eg: 60,120,144-165\n"
 	"\n"
 	"Nested mode options:\n"
 	"  -o, --nested-unfocused-refresh game refresh rate when unfocused\n"
@@ -462,6 +463,27 @@ static enum GamescopeUpscaleFilter parse_upscaler_filter(const char *str)
 struct sigaction handle_signal_action = {};
 extern std::mutex g_ChildPidMutex;
 extern std::vector<pid_t> g_ChildPids;
+
+GamescopePanelExternalOrientation g_eGamescopePanelExternalOrientation = GAMESCOPE_PANEL_EXTERNAL_ORIENTATION_AUTO;
+static GamescopePanelExternalOrientation force_external_orientation(const char *str)
+{
+	if (strcmp(str, "normal") == 0) {
+		g_bExternalForced = true;
+		return GAMESCOPE_PANEL_EXTERNAL_ORIENTATION_0;
+	} else if (strcmp(str, "right") == 0) {
+		g_bExternalForced = true;
+		return GAMESCOPE_PANEL_EXTERNAL_ORIENTATION_270;
+	} else if (strcmp(str, "left") == 0) {
+		g_bExternalForced = true;
+		return GAMESCOPE_PANEL_EXTERNAL_ORIENTATION_90;
+	} else if (strcmp(str, "upsidedown") == 0) {
+		g_bExternalForced = true;
+		return GAMESCOPE_PANEL_EXTERNAL_ORIENTATION_180;
+	} else {
+		fprintf( stderr, "gamescope: invalid value for --force-external-orientation\n" );
+		exit(1);
+	}
+}
 
 GamescopePanelExternalOrientation g_eGamescopePanelExternalOrientation = GAMESCOPE_PANEL_EXTERNAL_ORIENTATION_AUTO;
 static GamescopePanelExternalOrientation force_external_orientation(const char *str)
