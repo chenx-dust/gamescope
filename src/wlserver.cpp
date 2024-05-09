@@ -373,16 +373,16 @@ static void wlserver_handle_touch_motion(struct wl_listener *listener, void *dat
 static void wlserver_set_libinput_pointer(struct wlr_input_device *device)
 {
 #ifdef WLR_BACKEND_LIBINPUT_H
-	wlr_log.infof("Pass 1: %s", device->name);
+	wl_log.infof("Pass 1: %s", device->name);
 	if (device->type != WLR_INPUT_DEVICE_POINTER || !wlr_input_device_is_libinput(device))
 		return;
 
-	wlr_log.infof("Pass 2: %s", device->name);
+	wl_log.infof("Pass 2: %s", device->name);
 	struct libinput_device* libinput_device = wlr_libinput_get_device_handle(device);
 
 	if (g_tapToClick) {
 		libinput_device_config_tap_set_enabled(libinput_device, LIBINPUT_CONFIG_TAP_ENABLED);
-		wlr_log.infof("Tap to click: %s", device->name);
+		wl_log.infof("Tap to click: %s", device->name);
 	} else
 		libinput_device_config_tap_set_enabled(libinput_device, LIBINPUT_CONFIG_TAP_DISABLED);
 
@@ -418,7 +418,7 @@ static void wlserver_set_libinput_pointer(struct wlr_input_device *device)
 static void wlserver_new_input(struct wl_listener *listener, void *data)
 {
 	struct wlr_input_device *device = (struct wlr_input_device *) data;
-	wlr_log.infof("New input: %s", device->name);
+	wl_log.infof("New input: %s", device->name);
 
 	switch ( device->type )
 	{
@@ -454,7 +454,7 @@ static void wlserver_new_input(struct wl_listener *listener, void *data)
 		break;
 		case WLR_INPUT_DEVICE_POINTER:
 		{
-			wlr_log.infof("Pointer detected: %s", device->name);
+			wl_log.infof("Pointer detected: %s", device->name);
 			struct wlserver_pointer *pointer = (struct wlserver_pointer *) calloc( 1, sizeof( struct wlserver_pointer ) );
 
 			pointer->wlr = (struct wlr_pointer *)device;
