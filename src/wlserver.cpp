@@ -396,22 +396,34 @@ static void wlserver_set_libinput_pointer(struct wlr_input_device *device)
 	else
 		libinput_device_config_tap_set_drag_lock_enabled(libinput_device, LIBINPUT_CONFIG_DRAG_LOCK_DISABLED);
 	
-	if (libinput_device_config_scroll_has_natural_scroll(libinput_device) != 0)
+	if (libinput_device_config_scroll_has_natural_scroll(libinput_device) != 0) {
+		wl_log.infof("Natural Scroll available: %s", device->name);
 		switch (g_naturalScrolling)
 		{
 		case SelectedPointerType::TOUCHPAD:
+			wl_log.infof("Natural Scroll Touchpad");
 			if (libinput_device_config_tap_get_finger_count(libinput_device) == 0)
+			{
+				wl_log.infof("Natural Scroll enabled: %s", device->name);
 				libinput_device_config_scroll_set_natural_scroll_enabled(libinput_device, true);
+			}
 			break;
 		case SelectedPointerType::MOUSE:
+			wl_log.infof("Natural Scroll Mouse");
 			if (libinput_device_config_tap_get_finger_count(libinput_device) != 0)
+			{
+				wl_log.infof("Natural Scroll enabled: %s", device->name);
 				libinput_device_config_scroll_set_natural_scroll_enabled(libinput_device, true);
+			}
 			break;
 		case SelectedPointerType::ALL:
+			wl_log.infof("Natural Scroll All");
 			libinput_device_config_scroll_set_natural_scroll_enabled(libinput_device, true);
 		case SelectedPointerType::NONE:
+			wl_log.infof("Natural Scroll None");
 			break;
 		}
+	}
 #endif
 }
 
