@@ -142,6 +142,10 @@ const struct option *gamescope_options = (struct option[]){
 	// Steam Deck options
 	{ "mura-map", required_argument, nullptr, 0 },
 
+	// Pointer options
+	{ "tap-to-click", no_argument, nullptr, 0 },
+	{ "natural-scrolling", required_argument, nullptr, 0 },
+
 	{} // keep last
 };
 
@@ -245,6 +249,13 @@ const char usage[] =
 	"Steam Deck options:\n"
 	"  --mura-map                     Set the mura compensation map to use for the display. Takes in a path to the mura map.\n"
 	"\n"
+	"Pointer options:\n"
+	"  --tap-to-click                 enable tap-to-click and tap-and-drag feature for pointer devices\n"
+	"  --natural-scrolling            enable natural scrolling for ...\n"
+	"                     				  none => No pointer device\n"
+	"                                     touchpad => Only for touchpad\n"
+	"                                     mouse => Only for mouse\n"
+	"                     				  all => All pointer device\n"
 	"Keyboard shortcuts:\n"
 	"  Super + F                      toggle fullscreen\n"
 	"  Super + N                      toggle nearest neighbour filtering\n"
@@ -303,6 +314,9 @@ float g_flMaxWindowScale = FLT_MAX;
 
 uint32_t g_preferVendorID = 0;
 uint32_t g_preferDeviceID = 0;
+
+bool g_tapToClick = false;
+SelectedPointerType g_naturalScrolling = SelectedPointerType::NONE;
 
 pthread_t g_mainThread;
 
@@ -554,6 +568,20 @@ static EStreamColorspace parse_colorspace_string( const char *pszStr )
 	 	return k_EStreamColorspace_Unknown;
 }
 
+static SelectedPointerType parse_selected_pointer_type(const char* str)
+{
+    if (!str || !*str)
+        return SelectedPointerType::NONE;
+
+    if (!strcmp(str, "all"))
+        return SelectedPointerType::ALL;
+    else if (!strcmp(str, "touchpad"))
+        return SelectedPointerType::TOUCHPAD;
+    else if (!strcmp(str, "mouse"))
+        return SelectedPointerType::MOUSE;
+    else
+	 	return SelectedPointerType::NONE;
+}
 
 
 
@@ -748,6 +776,10 @@ int main(int argc, char **argv)
 					eCurrentBackend = gamescope::GamescopeBackend::Headless;
 				} else if (strcmp(opt_name, "cursor-scale-height") == 0) {
 					g_nCursorScaleHeight = atoi(optarg);
+				} else if (strcmp(opt_name, "tap-to-click") == 0) {
+					g_tapToClick = true;
+				} else if (strcmp(opt_name, "natural-scrolling") == 0) {
+					g_naturalScrolling = parse_selected_pointer_type( optarg );
 				}
 #if HAVE_OPENVR
 				else if (strcmp(opt_name, "openvr") == 0) {
