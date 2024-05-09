@@ -17,7 +17,6 @@
 #include "wlr_begin.hpp"
 #include <wlr/backend.h>
 #include <wlr/backend/headless.h>
-#define HAVE_DRM 1
 #if HAVE_DRM
 #include <wlr/backend/libinput.h>
 #endif
@@ -469,7 +468,7 @@ static void wlserver_new_input(struct wl_listener *listener, void *data)
 			pointer->frame.notify = wlserver_handle_pointer_frame;
 			wl_signal_add( &pointer->wlr->events.frame, &pointer->frame);
 
-			wlserver_set_libinput_pointer(pointer->wlr);
+			wlserver_set_libinput_pointer(device);
 		}
 		break;
 		case WLR_INPUT_DEVICE_TOUCH:
